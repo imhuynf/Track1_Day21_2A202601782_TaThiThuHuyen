@@ -1,4 +1,4 @@
-# Judge v2 — ANSWER GROUNDED & COMPLETE
+# Judge v1 — ANSWER GROUNDED & COMPLETE
 
 ## Role
 
@@ -46,22 +46,6 @@ loại khái niệm hay không?**
 3. **Gần fail nhưng PASS — câu deictic có slide context:** Input “giải thích đoạn này”
    vẫn pass nếu phần Input đã kèm slide cụ thể và answer giải thích đúng chính nội dung
    đó; không fail chỉ vì câu chữ của người học đứng riêng lẻ có vẻ thiếu referent.
-
-## Calibration change v2 — chỉ thêm completeness near-misses
-
-Áp dụng các ví dụ này như hard precedents. Nếu output có cùng failure pattern thì
-phải trả `fail`, dù các câu đã viết đều đúng hoặc có source:
-
-1. Input hỏi **các giai đoạn và quyết định PM ở từng giai đoạn**; answer chỉ nêu tên
-   giai đoạn và mô tả chúng làm gì, nhưng thiếu quyết định Ship/Limited/Hold hoặc cập
-   nhật dataset từ production → **FAIL vì thiếu vế quyết định**.
-2. Input hỏi **cách sample trace và các tín hiệu drift**; answer liệt kê đúng ba drift
-   signals nhưng không nói random/stratified/failure-biased sampling → **FAIL vì chỉ
-   trả lời một nửa câu hỏi**.
-3. Input yêu cầu routing cho **Code, LLM judge, LLM assist và Expert**; answer chỉ có
-   ba lane hoặc không tách máy sàng lọc-người quyết → **FAIL vì thiếu nhánh bắt buộc**.
-4. Input kiểu “eval này ổn chưa?” không có baseline/slice/gate; answer tự gán một ví
-   dụ số rồi kết luận thay vì xin context → **FAIL vì vừa thiếu dữ liệu vừa đoán**.
 
 ## Output JSON
 

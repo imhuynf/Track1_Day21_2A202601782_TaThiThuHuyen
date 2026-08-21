@@ -17,7 +17,30 @@ Track1_Day21_MHV_HoVaTen/
 │   └── evidence/                  # DATA THÔ — input/output thật của từng bước chạy
 │       ├── dataset-v1.jsonl       # dataset nhóm chốt (đầu vào mọi lần chạy)
 │       ├── results-v1.jsonl       # output tutor (mỗi row: input, output JSON, tool_calls, tokens, cost)
-│       ├── labels.csv             # nhãn người của 3 thành viên (vòng chấm độc lập)
+│       ├── labels.csv             # nhãn vàng sau khi 3 thành viên thảo luận bất đồng
+│       ├── agreement-v1.txt       # số agreement + phiếu ở các case bất đồng
+│       ├── code-checks-v1.txt     # output các rule deterministic trên từng row
+│       ├── calibration-v1.txt     # confusion matrix + disagreement của hai judge v1
+│       ├── labels-groundedness.csv
+│       ├── labels-followup-quality.csv
+│       ├── judge-prompt-groundedness-v1.md
+│       ├── judge-prompt-followup-v1.md
+│       ├── verdicts-groundedness-v1.jsonl
+│       ├── verdicts-followup-v1.jsonl
+│       ├── calibration-v2.txt
+│       ├── judge-prompt-groundedness-v2.md
+│       ├── judge-prompt-followup-v2.md
+│       ├── verdicts-groundedness-v2.jsonl
+│       ├── verdicts-followup-v2.jsonl
+│       ├── release-gate-v1.md      # threshold đóng băng trước candidate v2
+│       ├── tutor-prompt-v1.md      # system prompt baseline trước khi đóng spec gap
+│       ├── tutor-prompt-v2.md      # system prompt candidate đã đóng spec gap
+│       ├── results-v2.jsonl        # raw output candidate v2
+│       ├── code-checks-v2.txt      # code gate candidate v2
+│       ├── verdicts-groundedness-candidate-v2.jsonl
+│       ├── verdicts-followup-candidate-v2.jsonl
+│       ├── candidate-v2-adjudication.csv # verdict cuối theo row
+│       ├── scorecard-v2.md         # gate, slice, regression và ba trace đọc tay
 │       ├── judge-prompt-v1.md     # judge prompt vòng 1
 │       ├── judge-prompt-v2.md     # judge prompt vòng 2 (diff với v1 phải giải thích trong mục 5 của REPORT.md)
 │       ├── verdicts-v1.jsonl      # output judge vòng 1

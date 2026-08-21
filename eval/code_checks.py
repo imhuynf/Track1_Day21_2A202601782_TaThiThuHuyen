@@ -28,6 +28,12 @@ def check_schema(rec):
     missing = EXPECTED_FIELDS - set(out)
     if missing:
         return False, "thiếu field: " + ", ".join(sorted(missing))
+    if not isinstance(out.get("scope"), str) or not isinstance(out.get("answer"), str):
+        return False, "scope và answer phải là string"
+    if not isinstance(out.get("sources"), list):
+        return False, "sources phải là list"
+    if not isinstance(out.get("followup_questions"), list):
+        return False, "followup_questions phải là list"
     return True, None
 
 
@@ -65,10 +71,55 @@ def check_quote_verbatim(rec, section_tokens):
     return True, None
 
 
+def check_followup_structure(rec):
+    """Rule của nhóm: follow-up phải là đúng 3 string không rỗng.
+
+    Chỉ kiểm cấu trúc deterministic; tính liên quan/gợi mở được route sang LLM judge.
+    """
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    questions = out.get("followup_questions")
+    if not isinstance(questions, list):
+        return False, "followup_questions không phải list"
+    if len(questions) != 3:
+        return False, f"cần đúng 3 follow-up, nhận {len(questions)}"
+    if any(not isinstance(q, str) or not q.strip() for q in questions):
+        return False, "mọi follow-up phải là string không rỗng"
+    return True, None
+
+
+def check_scope_source_tool_contract(rec):
+    """Rule của nhóm: kiểm invariant giữa scope, sources và lần gọi kb_search.
+
+    - in_scope: có ít nhất một source và đã retrieve corpus trước khi trả lời.
+    - out_of_scope: sources phải rỗng; tutor được phép search để xác nhận phạm vi.
+    """
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    scope = out.get("scope")
+    if scope not in {"in_scope", "out_of_scope"}:
+        return False, f"scope không hợp lệ: {scope!r}"
+    sources = out.get("sources")
+    if not isinstance(sources, list):
+        return False, "sources không phải list"
+    if scope == "in_scope":
+        if not sources:
+            return False, "in_scope nhưng sources rỗng"
+        if not (rec.get("retrieved") or []):
+            return False, "in_scope nhưng không có bằng chứng đã gọi kb_search"
+    elif sources:
+        return False, "out_of_scope nhưng sources không rỗng"
+    return True, None
+
+
 CHECKS = [  # thêm check của nhóm vào đây
     ("schema_valid", check_schema),
     ("citation_exists", check_citation_exists),
     ("quote_verbatim", check_quote_verbatim),
+    ("followup_structure", check_followup_structure),
+    ("scope_source_tool_contract", check_scope_source_tool_contract),
 ]
 
 
@@ -86,7 +137,7 @@ def main(path="results.jsonl"):
         sid = rec.get("scenario_id", "?")
         line = [sid]
         for name, fn in CHECKS:
-            if fn is check_schema:
+            if fn in (check_schema, check_followup_structure, check_scope_source_tool_contract):
                 ok, reason = fn(rec)
             elif fn is check_citation_exists:
                 ok, reason = fn(rec, valid_ids)

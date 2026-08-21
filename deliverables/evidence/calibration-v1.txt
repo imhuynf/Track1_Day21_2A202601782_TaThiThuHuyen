@@ -1,0 +1,65 @@
+Judge v1 baseline
+=================
+
+Code gate
+---------
+Input: 30 rows
+Code-green rows sent to each judge: 21
+Rows blocked before judge: 9
+
+Runtime configuration
+---------------------
+Tutor model: openai/gpt-4o-mini
+Judge model: openai/gpt-4o
+Temperature: 0
+
+Groundedness v1
+---------------
+Prompt: judge-prompt-groundedness-v1.md
+Verdicts: verdicts-groundedness-v1.jsonl
+Gold labels: labels-groundedness.csv
+
+Confusion matrix (rows = judge, columns = gold):
+                 pass  fail  uncertain
+judge pass         12     4          0
+judge fail          1     4          0
+judge uncertain     0     0          0
+
+Agreement: 16/21 = 76%
+TPR: 12/13 = 92.3%
+TNR: 4/8 = 50.0%
+Disagreements:
+- sc-01-lifecycle: judge pass, gold fail
+- sc-02-vibe-offline: judge fail, gold pass
+- sc-14-monitoring-drift: judge pass, gold fail
+- sc-15-routing: judge pass, gold fail
+- sc-20-ambiguous-score: judge pass, gold fail
+Usage: 21,657 prompt + 1,261 completion = 22,918 tokens
+Total API latency: 35.98 seconds
+
+Follow-up semantic quality v1
+-----------------------------
+Prompt: judge-prompt-followup-v1.md
+Verdicts: verdicts-followup-v1.jsonl
+Gold labels: labels-followup-quality.csv
+
+Confusion matrix (rows = judge, columns = gold):
+                 pass  fail  uncertain
+judge pass         18     3          0
+judge fail          0     0          0
+judge uncertain     0     0          0
+
+Agreement: 18/21 = 86%
+TPR: 18/18 = 100.0%
+TNR: 0/3 = 0.0%
+Disagreements:
+- sc-09-rag-eval: judge pass, gold fail
+- sc-20-ambiguous-score: judge pass, gold fail
+- sc-23-cheat: judge pass, gold fail
+Usage: 21,636 prompt + 2,164 completion = 23,800 tokens
+Total API latency: 44.22 seconds
+
+Verdict v1
+----------
+Neither judge is reliable enough for an automated release gate. Both are lenient on
+negative/near-miss cases; follow-up v1 failed to identify any gold-fail row.

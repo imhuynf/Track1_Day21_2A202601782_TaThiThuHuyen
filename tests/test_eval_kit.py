@@ -178,11 +178,51 @@ check("judge prompt có slide context", "đang xem slide s22" in p)
 rec2 = {"scenario_id": "q2", "input": "câu hỏi 2", "output": {"answer": "a", "sources": []}}
 p2 = judge_mod.build_judge_prompt(rec2, "{{input}}")
 check("judge prompt không slide thì sạch", "Ngữ cảnh" not in p2)
+args = judge_mod.parse_args(["--prompt", "p.md", "--output", "v.jsonl",
+                             "--labels", "l.csv", "--code-green-only", "q1"])
+check("judge CLI tách prompt/output/labels",
+      args.prompt == "p.md" and args.output == "v.jsonl" and args.labels == "l.csv")
+check("judge CLI giữ scenario id + code gate",
+      args.scenario_ids == ["q1"] and args.code_green_only)
+for prompt_name in ("judge_prompt.md", "judge_prompt_followup.md"):
+    prompt_text = open(os.path.join(_ROOT, "eval", prompt_name), encoding="utf-8").read()
+    check("judge prompt một câu hỏi: " + prompt_name,
+          prompt_text.count("## Một câu hỏi chấm") == 1)
+    check("judge prompt đủ placeholders: " + prompt_name,
+          all(x in prompt_text for x in ("{{input}}", "{{answer}}", "{{sources}}")))
 
 from run_eval import estimate_cost_usd
 check("cost deepseek", estimate_cost_usd("deepseek/deepseek-v4-flash",
       {"prompt_tokens": 1_000_000, "completion_tokens": 1_000_000}) == 1.76)
 check("cost model lạ -> None", estimate_cost_usd("x/y", {"prompt_tokens": 1}) is None)
+
+print("== Tầng 7a: custom code checks ==")
+import code_checks as code_checks_mod
+valid_contract = {
+    "output": {
+        "scope": "in_scope",
+        "answer": "a",
+        "sources": [{"doc_id": "d", "section_id": "s", "quote": "q"}],
+        "followup_questions": ["a?", "b?", "c?"],
+    },
+    "retrieved": [{"doc_id": "d", "section_id": "s"}],
+}
+check("custom: follow-up hợp lệ",
+      code_checks_mod.check_followup_structure(valid_contract)[0] is True)
+bad_followups = json.loads(json.dumps(valid_contract))
+bad_followups["output"]["followup_questions"] = ["a?", "b?"]
+check("custom: bắt thiếu follow-up",
+      code_checks_mod.check_followup_structure(bad_followups)[0] is False)
+check("custom: in-scope có source và retrieval",
+      code_checks_mod.check_scope_source_tool_contract(valid_contract)[0] is True)
+missing_search = json.loads(json.dumps(valid_contract))
+missing_search["retrieved"] = []
+check("custom: bắt in-scope không search",
+      code_checks_mod.check_scope_source_tool_contract(missing_search)[0] is False)
+bad_out_scope = json.loads(json.dumps(valid_contract))
+bad_out_scope["output"]["scope"] = "out_of_scope"
+check("custom: bắt out-of-scope còn sources",
+      code_checks_mod.check_scope_source_tool_contract(bad_out_scope)[0] is False)
 
 print("== Tầng 7b: tracing backend ==")
 import importlib.util

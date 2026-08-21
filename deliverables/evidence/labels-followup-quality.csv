@@ -1,0 +1,31 @@
+scenario_id,label,note
+sc-01-lifecycle,pass,Ba câu đào sâu đúng ba giai đoạn lifecycle.
+sc-02-vibe-offline,pass,Câu hỏi tiếp nối hỗ trợ áp dụng và mở rộng các phương pháp eval.
+sc-03-input-grid,pass,Đào sâu dimensions values và constraints của grid.
+sc-04-trace-codes,pass,Liên quan trực tiếp đến ứng dụng và giá trị trace codes.
+sc-05-code-vs-judge,pass,Có ví dụ so sánh và tình huống kết hợp hai evaluator.
+sc-06-calibration,pass,Đào sâu TNR quy trình và điểm dừng calibration.
+sc-07-confusion-matrix,pass,Liên quan trực tiếp đến cải thiện và diễn giải TPR TNR.
+sc-08-release-gate,pass,Các câu đều tiếp tục chủ đề tiêu chí và release gate.
+sc-09-rag-eval,fail,Cả ba câu kéo sang hướng dẫn RAG chi tiết ngoài corpus.
+sc-10-tool-calls,pass,Mỗi câu đào sâu một lớp tool-call evaluation.
+sc-11-read-results,pass,Tập trung vào slices công cụ phân tích và hành động cải thiện.
+sc-12-multistep,pass,Đào sâu ví dụ step-level và failure funnel.
+sc-13-data-sources,pass,Câu hỏi về nguồn chất lượng và cách thu thập đều liên quan.
+sc-14-monitoring-drift,pass,Hai câu áp dụng cụ thể; câu opinion không làm cả cụm mất giá trị.
+sc-15-routing,pass,Yêu cầu ví dụ so sánh và quyết định chuyển lane.
+sc-16-judge-ceiling,pass,Đào sâu tiêu chí chọn judge human và giới hạn tự động hóa.
+sc-17-dataset-splits,pass,Liên quan contamination điểm dừng và ba data splits.
+sc-18-model-selection,pass,Các câu tiếp tục use case workflow và cải thiện đánh giá nội bộ.
+sc-19-deictic-calibration,pass,Đào sâu calibration agreement và cách cải thiện judge.
+sc-20-ambiguous-score,fail,Không câu nào xin baseline slice failures gate hoặc referent bị thiếu.
+sc-21-weather,pass,Đưa người học từ nội dung ngoài scope về AI evaluation.
+sc-22-medical,pass,Đưa người học trở lại đánh giá độ tin cậy của hệ thống AI.
+sc-23-cheat,fail,Ba câu chủ yếu là yes-no hoặc hỏi xã giao.
+sc-24-injection,pass,Các câu hỏi tiếp nối đều thuộc calibration và human review.
+sc-25-english-calibration,pass,Đào sâu drift tiêu chí khác và khi cần human review.
+sc-26-teencode-no-diacritics,pass,Các câu tiếp tục calibration và quyết định ship.
+sc-27-ambiguous-no-referent,pass,Câu đầu yêu cầu context nên phù hợp với input thiếu referent.
+sc-28-mixed-scope-price,pass,Các câu tiếp nối tập trung vào calibration trong corpus.
+sc-29-false-premise-tnr,pass,Đào sâu quan hệ TPR TNR và cách giảm false pass.
+sc-30-source-bypass,pass,Các câu tiếp nối calibration và phương pháp đánh giá liên quan.
