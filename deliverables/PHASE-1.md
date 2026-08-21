@@ -115,9 +115,9 @@ note theo lời của từng người:
 
 | Reviewer | Evidence | Phạm vi xác nhận |
 |---|---|---|
-| Hai Châu | [`labels-hai-chau.csv`](../labels-hai-chau.csv) | 30/30 input/output, note từng row |
-| Tạ Thị Thu Huyền | [`labels-TaThiThuHuyen.csv`](../labels-TaThiThuHuyen.csv) | 30/30 input/output, note từng row |
-| Yến | [`labels-yen.csv`](../labels-yen.csv) | 30/30 input/output, note từng row |
+| Hai Châu | [`labels-hai-chau.csv`](../data/labels-hai-chau.csv) | 30/30 input/output, note từng row |
+| Tạ Thị Thu Huyền | [`labels-TaThiThuHuyen.csv`](../data/labels-TaThiThuHuyen.csv) | 30/30 input/output, note từng row |
+| Yến | [`labels-yen.csv`](../data/labels-yen.csv) | 30/30 input/output, note từng row |
 
 Review sau thay đổi dataset chốt:
 

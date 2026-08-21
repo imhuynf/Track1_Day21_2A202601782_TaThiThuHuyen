@@ -1,30 +1,41 @@
 # AI Support Log
 
-| # | Bước | AI được dùng để làm gì | Cách kiểm chứng và quyền quyết định của nhóm |
+AI chỉ hỗ trợ các công việc sau khi nhóm đã xác định bài toán, khóa coverage và giữ
+quyền quyết định ở mọi bước của eval loop.
+
+| # | Bước | AI được dùng để làm gì | Cách nhóm kiểm chứng và giữ quyền quyết định |
 |---|---|---|---|
-| 1 | Phase 1–2 | Gợi ý nhóm dimension, sinh/biên tập input synthetic và tóm tắt coverage | Con người đọc từng input, gắn expected behavior/risk/set type; báo cáo không tuyên bố có production trace |
-| 2 | Baseline labeling | Hỗ trợ tra corpus và chỉ ra claim/citation đáng nghi | Ba thành viên chấm độc lập trong ba CSV với note riêng; agreement đo bằng code, không ép 100% |
-| 3 | Code checks | Viết rule schema, citation tồn tại, quote verbatim, follow-up structure và scope/source/tool contract | Chạy lại trên 30 rows; đối chiếu từng ID fail với corpus và nhãn tay |
-| 4 | Judge calibration | Soạn near-miss prompts, chạy confusion matrix và tóm tắt TPR/TNR | Mỗi version giữ prompt + raw verdict; chỉ đổi một prompt variable mỗi vòng |
-| 5 | Dataset update | Tìm ảnh hưởng của input mới `sc-09` và scope mới `sc-27`; rerun/relabel phần liên quan | Đọc lại corpus và rubric: chốt Groundedness `sc-09` fail, Follow-up pass; `sc-27` scope fail |
-| 6 | Phase 5–7 | Tính scorecard, slices, cost/latency và draft REPORT | Số được recompute từ JSONL/CSV; threshold giữ nguyên; verdict HOLD dù overall tăng |
-| 7 | Trace/evidence | Hỗ trợ liệt kê artifact và truy xuất metadata project LangSmith | Chỉ lưu project ID/link; không in hoặc ghi API key vào deliverables |
+| 1 | Phase 1 — test inputs | Paraphrase/biên tập cách diễn đạt của các test input synthetic sau khi nhóm đã khóa dimensions, combinations và coverage strategy | Nhóm tự chọn bốn dimensions, các value/combination, expected behavior, risk và set type; từng input sau paraphrase được con người đọc lại trước khi đưa vào dataset |
+| 2 | Phase 3 — code checks | Brainstorm assertions và edge cases cho schema, citation, quote verbatim, follow-up structure và scope/source/tool contract | Con người chọn assertion phù hợp, kiểm tra rule trên 30 rows và đối chiếu từng ID fail với raw output/corpus |
+| 3 | Phase 4 — judge prompt | Gợi ý cấu trúc judge prompt và cách viết near-miss rõ ràng | Nhóm tự định nghĩa quality/rubric, chọn tiêu chí blocker và duyệt từng prompt version trước khi chạy |
+| 4 | Judge calibration | Tóm tắt pattern từ các case judge lệch human gold, cùng confusion matrix và TPR/TNR đã tính | Con người đọc lại từng case, quyết định thay đổi prompt, chỉ đổi một biến mỗi vòng và giữ toàn bộ raw verdict theo version |
+| 5 | Phase 5–7 — report | Soạn nháp và biên tập câu chữ cho scorecard, calibration report và final report | Mọi số liệu được đối chiếu/recompute từ JSONL, CSV và output code; threshold đã khóa không đổi và verdict cuối do nhóm quyết định |
+
+## Ranh giới không giao cho AI
+
+- AI không chọn dimensions, combinations hoặc coverage strategy. Các quyết định này
+  do nhóm chốt trước khi AI hỗ trợ paraphrase test inputs.
+- AI không gắn nhãn ở Phase 2. Ba thành viên tự chấm độc lập trong ba file CSV, tự
+  thảo luận disagreement và chốt human gold.
+- AI không quyết định threshold, evaluator routing hoặc verdict. Nhóm tự khóa
+  threshold, xác nhận trade-off và chốt **HOLD**.
+- AI không được tạo hoặc điền số liệu, trace hay kết quả chạy không tồn tại. Mọi con
+  số trong report phải truy ngược được về raw artifact trong `evidence/`.
 
 ## Gợi ý AI đã bị bác bỏ
 
-- Bác yêu cầu/ý tưởng điều chỉnh nhãn để agreement đúng một con số mong muốn. Agreement
-  cuối là kết quả thật **29/30 = 96%**, không phải 93% hoặc 100%.
+- Bác gợi ý điều chỉnh nhãn để agreement đạt một con số mong muốn. Agreement cuối là
+  kết quả chấm độc lập thật **29/30 = 96%**, không phải 93% hoặc 100%.
 - Bác Follow-up prompt v3 coi mọi câu hỏi retrieval/answer quality là ngoài corpus.
-  Đọc lại corpus cho thấy có search quality, generation capability và full-path
-  outcome; v3 giảm agreement nên được thay bằng v4.
-- Bác việc coi `sc-27` pass chỉ vì Tutor không đoán. Dataset mới chốt in-scope, nên
+  Nhóm đọc lại corpus, thấy precedent này sai và thay bằng v4.
+- Bác việc coi `sc-27` pass chỉ vì Tutor không đoán. Dataset mới chốt in-scope nên
   output `out_of_scope` vẫn là blocker.
 - Không nâng Groundedness thành autonomous judge: v2 và v3 cùng 86% agreement, chỉ
   đổi TPR lấy TNR.
 
 ## Phần do con người sở hữu
 
-- Định nghĩa quality/rubric và quyết định blocker.
+- Dimensions, combinations, coverage strategy, expected behavior và risk.
 - Ba bộ nhãn độc lập, thảo luận `sc-30` và nhãn vàng.
-- Threshold release, trade-off và verdict **HOLD**.
-- Quyết định route evaluator và việc giữ human review khi judge chạm trần.
+- Quality rubric, blocker, evaluator routing và prompt change được chấp nhận.
+- Release threshold, trade-off và verdict **HOLD**.
