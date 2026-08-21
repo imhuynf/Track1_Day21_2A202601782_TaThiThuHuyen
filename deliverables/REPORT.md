@@ -2,7 +2,9 @@
 
 Canonical dataset là [`evidence/dataset-v1.jsonl`](evidence/dataset-v1.jsonl), gồm
 30 rows. Báo cáo này đã được đồng bộ sau hai thay đổi `sc-09` và `sc-27`; mọi số
-liệu đều truy ngược được xuống artifact trong `deliverables/evidence/`.
+liệu đều truy ngược được xuống artifact trong `deliverables/evidence/`. Candidate
+chính thức hiện tại là `results-v3.jsonl`; row-level adjudication đã được người nộp
+xác nhận ngày 2026-08-21.
 
 ---
 
@@ -112,9 +114,9 @@ ambiguous và mixed-scope. Đây là bộ smoke test, không thay full suite.
 **Hạn chế:** 30/30 input là synthetic-reviewed. Gate Coverage đạt cho eval nội bộ
 nhưng chưa chứng minh đại diện production.
 
-Hai raw result snapshot có danh sách section `retrieved` nhưng được tạo trước khi
-runner persist exact `tool_calls/steps`; runner đã được sửa cho vòng kế tiếp. Nhóm
-không tái tạo query giả cho run lịch sử.
+Hai raw result snapshot v1/v2 có danh sách section `retrieved` nhưng được tạo trước
+khi runner persist exact `tool_calls/steps`. Full rerun v3 đã đóng evidence gap này:
+30/30 rows có `tool_calls` và `steps`. Nhóm không tái tạo query giả cho run lịch sử.
 
 ---
 
@@ -193,15 +195,15 @@ lại một citation đã fail code, và không cộng điểm để cứu block
 
 | Failure pattern | Case | Chẩn đoán | Hành động |
 |---|---|---|---|
-| Quote không liên tiếp | `sc-05/07/08/10/11/12/14/26/29` ở candidate | Generalization gap | Chặn bằng code; sửa cơ chế copy span |
+| Quote không liên tiếp | `sc-03/05/07/08/10/11/12/13/14/18/29` ở candidate v3 | Generalization gap | Chặn bằng code; sửa cơ chế copy span |
 | Thiếu vế/decision | `sc-11/12/15/20` | Prompt/spec + generalization | Checklist từng intent; thiếu dữ liệu thì hỏi |
 | RAG suy diễn framework | `sc-09` | Generalization gap | Regression case + Groundedness assist |
 | Ambiguous/mixed scope | `sc-20/27/28` | Spec branch chưa ổn định | Bắt xin referent; mixed phải tách hai phần |
 | Sai loại khái niệm | `sc-30` | Generalization gap | Human precedent + judge near-miss |
 
 System prompt v2 đã thêm checklist intent, ambiguous, mixed-scope, injection và quote
-verbatim. Dataset đổi sau đó chỉ cần rerun `sc-09` vì input đổi; `sc-27` giữ input
-nhưng đổi metadata nên relabel/adjudicate lại.
+verbatim. Sau dataset update, nhóm đã chạy lại đủ 30 rows ở candidate v3 và
+adjudicate lại toàn bộ; không ghép output cũ với metadata mới.
 
 ---
 
@@ -209,16 +211,17 @@ nhưng đổi metadata nên relabel/adjudicate lại.
 
 ### Code checks
 
-Baseline [`code-checks-v1.txt`](evidence/code-checks-v1.txt) và candidate
-[`code-checks-v2.txt`](evidence/code-checks-v2.txt) đều có:
+Baseline [`code-checks-v1.txt`](evidence/code-checks-v1.txt), candidate v2
+[`code-checks-v2.txt`](evidence/code-checks-v2.txt) và candidate v3
+[`code-checks-v3.txt`](evidence/code-checks-v3.txt) có:
 
-| Rule | Baseline | Candidate |
-|---|---:|---:|
-| Schema valid | 30/30 | 30/30 |
-| Citation exists | 30/30 | 30/30 |
-| Quote verbatim | 21/30 | 21/30 |
-| Follow-up structure | 30/30 | 30/30 |
-| Scope/source/tool contract | 30/30 | 30/30 |
+| Rule | Baseline | Candidate v2 | Candidate v3 |
+|---|---:|---:|---:|
+| Schema valid | 30/30 | 30/30 | 30/30 |
+| Citation exists | 30/30 | 30/30 | 30/30 |
+| Quote verbatim | 21/30 | 21/30 | 19/30 |
+| Follow-up structure | 30/30 | 30/30 | 30/30 |
+| Scope/source/tool contract | 30/30 | 30/30 | 30/30 |
 
 Baseline có 9 code-fail và cả 9 đều human-fail; code cover **9/20 = 45%** tổng
 baseline failures. Code không thay human scope verdict: `sc-27` có contract
@@ -241,7 +244,7 @@ Artifact: [`agreement-v1.txt`](evidence/agreement-v1.txt) và
 ### LLM judges
 
 Tutor dùng `openai/gpt-4o-mini`; judge dùng `openai/gpt-4o`; temperature `0`.
-Judge chỉ nhận 21/30 code-green rows.
+Các vòng calibration trên baseline chỉ nhận 21/30 code-green rows.
 
 **Groundedness**
 
@@ -264,8 +267,9 @@ human adjudication**.
 | v3 | 18 / 3 | 20/21 = 95% | 94,7% | 100% | Bác bỏ precedent RAG sai |
 | v4 | 19 / 2 | 21/21 = 100% | 100% | 100% | Prompt hiện hành; vẫn assist |
 
-V4 chỉ bỏ precedent “mọi follow-up RAG là fail”. Candidate v4 cho **21/21 pass** trên
-code-green; human review 9 code-red rows cũng pass, nên Follow-up final là 30/30.
+V4 chỉ bỏ precedent “mọi follow-up RAG là fail”. Candidate v2 dùng prompt v4 cho
+**21/21 pass** trên code-green; human review 9 code-red rows cũng pass, nên Follow-up
+final của v2 là 30/30.
 
 Artifacts:
 
@@ -273,6 +277,21 @@ Artifacts:
 - [`calibration-v2.txt`](evidence/calibration-v2.txt)
 - [`calibration-v3.txt`](evidence/calibration-v3.txt)
 - [`calibration-v4.txt`](evidence/calibration-v4.txt)
+
+**Judge run trên candidate v3**
+
+Code gate chạy trước inference, nên mỗi judge chỉ nhận 19/30 code-green rows. Hai
+judge dùng prompt và output file riêng; cả hai hoàn tất không có lỗi 429:
+
+- Groundedness v3: **14 pass · 5 fail**, lưu tại
+  [`verdicts-groundedness-results-v3.jsonl`](evidence/verdicts-groundedness-results-v3.jsonl).
+- Follow-up v4: **18 pass · 1 fail**, lưu tại
+  [`verdicts-followup-results-v3.jsonl`](evidence/verdicts-followup-results-v3.jsonl).
+
+LLM chỉ là assist. Người nộp đã xác nhận row-level adjudication ngày 2026-08-21.
+Bảy case cần human override/review rõ nhất là `sc-16`, `sc-19`, `sc-20`, `sc-22`,
+`sc-23`, `sc-25`, `sc-30`; rationale đầy đủ nằm trong
+[`candidate-v3-adjudication.csv`](evidence/candidate-v3-adjudication.csv).
 
 ### Verdict evaluator
 
@@ -306,56 +325,59 @@ dataset update.
 | Latency | P95 <=10 giây |
 | Cost | trung bình <=$0.002/câu |
 
-### Candidate v2
+### Candidate v3 — human signed off
 
 | Tiêu chí | Pass | Fail | Rate | Gate |
 |---|---:|---:|---:|---|
 | Schema | 30 | 0 | 100% | PASS |
 | Source + contract | 30 | 0 | 100% | PASS |
-| Quote verbatim | 21 | 9 | 70,0% | **FAIL** |
-| Grounded & complete | 21 | 9 | 70,0% | **FAIL** |
-| Groundedness high-risk | 13 | 3 | 81,3% | **FAIL** |
+| Quote verbatim | 19 | 11 | 63,3% | **FAIL** |
+| Grounded & complete | 15 | 15 | 50,0% | **FAIL** |
+| Groundedness high-risk | 11 | 5 | 68,8% | **FAIL** |
 | Follow-up structure | 30 | 0 | 100% | PASS |
-| Follow-up semantic | 30 | 0 | 100% | PASS |
+| Follow-up semantic | 26 | 4 | 86,7% | **FAIL** |
 | Scope handling | 26 | 4 | 86,7% | — |
 | Critical scope | 4 | 2 | 66,7% | **FAIL** |
-| **Overall** | **14** | **16** | **46,7%** | **FAIL** |
+| **Overall** | **7** | **23** | **23,3%** | **FAIL** |
 
 ### Baseline và slices
 
-| Slice | n | Baseline | Candidate | Delta |
-|---|---:|---:|---:|---:|
-| Overall | 30 | 10/30 (33,3%) | 14/30 (46,7%) | +13,3 điểm % |
-| Representative | 3 | 1/3 | 3/3 | +66,7 điểm % |
-| Challenge | 11 | 4/11 | 4/11 | 0 |
-| High-risk | 16 | 5/16 | 7/16 | +12,5 điểm % |
-| In-scope | 26 | 8/26 | 10/26 | +7,7 điểm % |
-| Out-of-scope | 4 | 2/4 | 4/4 | +50 điểm % |
+| Slice | n | Baseline | Candidate v2 | Candidate v3 | Delta v3−v2 |
+|---|---:|---:|---:|---:|---:|
+| Overall | 30 | 10/30 | 14/30 | 7/30 | −23,3 điểm % |
+| Representative | 3 | 1/3 | 3/3 | 2/3 | −33,3 điểm % |
+| Challenge | 11 | 4/11 | 4/11 | 1/11 | −27,3 điểm % |
+| High-risk | 16 | 5/16 | 7/16 | 4/16 | −18,8 điểm % |
+| In-scope | 26 | 8/26 | 10/26 | 5/26 | −19,2 điểm % |
+| Out-of-scope | 4 | 2/4 | 4/4 | 2/4 | −50,0 điểm % |
 
-Năm improvement: `sc-01`, `sc-06`, `sc-13`, `sc-23`, `sc-24`. Regression:
-`sc-10` do quote không còn liên tiếp.
+So với v2, v3 không có fail→pass và có bảy pass→fail: `sc-02`, `sc-03`, `sc-13`,
+`sc-19`, `sc-22`, `sc-23`, `sc-25`. Temperature 0 không bảo đảm output model hoàn
+toàn deterministic; vì vậy v3 được báo cáo đúng là một regression run, không chọn
+snapshot tốt hơn sau khi xem số.
 
 ### Vận hành
 
 - 30/30 request hoàn tất.
-- 195.356 tokens = 184.404 prompt + 10.952 completion.
-- Tổng cost $0.034232; trung bình $0.001141/câu.
-- Latency trung bình 6,44 giây; P95 9,38 giây; max 18,46 giây.
+- 191.422 tokens = 180.414 prompt + 11.008 completion.
+- Tổng cost $0.033667; trung bình $0.001122/câu.
+- Latency trung bình 5,80 giây; P95 9,37 giây; max 10,59 giây.
 
 ### Quyết định
 
-**HOLD.** Candidate đạt latency/cost nhưng trượt quote, groundedness, critical scope
-và overall. Hard-gate scope fail nên không đủ điều kiện `SHIP WITH CONDITIONS`.
+**HOLD.** Candidate v3 đạt latency/cost nhưng trượt quote, groundedness, follow-up,
+critical scope và overall. Hard-gate scope fail nên không đủ điều kiện
+`SHIP WITH CONDITIONS`.
 
 Ba trace fail quan trọng:
 
-1. `sc-09`: suy diễn ba lớp agent thành framework RAG.
+1. `sc-20`: tự áp ví dụ 92%→78% thay vì xin baseline/slices/failures/gate.
 2. `sc-27`: hỏi làm rõ đúng nhưng trả out-of-scope trái metadata mới.
 3. `sc-28`: trả calibration nhưng bỏ phần giá live thay vì từ chối rõ.
 
 Failure concentration và row-level notes ở
-[`scorecard-v2.md`](evidence/scorecard-v2.md) và
-[`candidate-v2-adjudication.csv`](evidence/candidate-v2-adjudication.csv).
+[`scorecard-v3.md`](evidence/scorecard-v3.md) và
+[`candidate-v3-adjudication.csv`](evidence/candidate-v3-adjudication.csv).
 
 ---
 
@@ -368,21 +390,24 @@ Failure concentration và row-level notes ở
 Blind spot: không có production trace; representative/OOS/negative calibration còn
 nhỏ.
 
-Hai snapshot tutor lịch sử thiếu exact tool query (vẫn có retrieved sections); đây là
-evidence gap cần đóng bằng full rerun tiếp theo, không ảnh hưởng code/citation counts
-đã kiểm được nhưng hạn chế trace-level audit.
+Hai snapshot tutor lịch sử v1/v2 thiếu exact tool query nhưng v3 đã đóng evidence
+gap: 30/30 rows có `tool_calls`, `steps` và retrieved sections để audit trace-level.
 
 ### 2. Đồng thuận của con người
 
 Agreement độc lập là **96% (29/30)**, pairwise **96%/96%/100%**. Disagreement duy nhất
 `sc-30` được giữ trong evidence; gold fail vì lỗi loại khái niệm là blocker. Dataset
-update khiến cả ba reviewer đồng ý fail `sc-09` và `sc-27`.
+update khiến cả ba reviewer đồng ý fail `sc-09` và `sc-27`. Với candidate v3, LLM
+chỉ chuẩn bị evidence; người nộp xác nhận nhãn cuối **7 pass · 23 fail**, không có
+`UNCERTAIN`.
 
 ### 3. LLM judge
 
 Groundedness chạy ba vòng: 71% → 86% → 86%; v3 tăng TNR nhưng giảm TPR nên chạm trần
 prompt-only và được hạ xuống LLM assist. Follow-up v4 đạt 100% trên calibration nhưng
-chỉ có hai negatives và không held-out, nên cũng giữ LLM assist.
+chỉ có hai negatives và không held-out, nên cũng giữ LLM assist. Trên candidate v3,
+hai judge chạy riêng sau code gate, lần lượt trả 14/5 và 18/1 pass/fail trên 19 rows;
+không có lỗi 429.
 
 ### 4. Routing
 
@@ -392,8 +417,9 @@ definition of quality chưa thống nhất hoặc domain mở rộng high-stakes
 
 ### 5. Verdict và bước tiếp theo
 
-**HOLD / CHƯA SHIP.** Candidate tăng 13,3 điểm phần trăm so baseline và đạt SLA vận
-hành, nhưng overall chỉ 14/30; quote 21/30; groundedness 21/30; critical scope 4/6.
+**HOLD / CHƯA SHIP.** Candidate v3 đạt SLA vận hành nhưng regression so với v2:
+overall chỉ **7/30**; quote **19/30**; groundedness **15/30**; follow-up semantic
+**26/30**; critical scope **4/6**.
 
 Thứ tự sửa:
 
@@ -401,7 +427,7 @@ Thứ tự sửa:
    trước final output.
 2. Thêm branch ambiguous giữ in-scope khi chủ đề thuộc corpus nhưng thiếu referent.
 3. Bắt mixed-scope liệt kê rõ phần trả lời được và phần từ chối.
-4. Giữ `sc-09`, `sc-10`, `sc-27`, `sc-28` làm regression set; chạy full suite
+4. Giữ `sc-03`, `sc-09`, `sc-20`, `sc-27`, `sc-28`, `sc-30` làm regression set; chạy full suite
    sau mỗi thay đổi, không đổi threshold.
 5. Bổ sung production traces và fresh held-out negatives trước khi nâng quyền judge.
 

@@ -40,6 +40,12 @@ Cần có đủ:
 | `verdicts-followup-candidate-v4.jsonl` | Follow-up v4 sau code gate | 21 verdict; 9 code-red rows được đọc tay |
 | `candidate-v2-adjudication.csv` | Human review kết hợp code/judge signals | Verdict cuối theo row, override và blocker chính |
 | `scorecard-v2.md` | Tổng hợp Phase 5 | Gate, slice delta, regression, failure concentration và ba trace đọc tay |
+| `results-v3.jsonl` | Full rerun sau khi runner lưu tool log | 30 outputs có `tool_calls` và `steps` |
+| `code-checks-v3.txt` | Code gate trên results v3 | 19 code-green, 11 quote failures |
+| `verdicts-groundedness-results-v3.jsonl` | Groundedness prompt v3 | 19 verdict sạch sau code gate |
+| `verdicts-followup-results-v3.jsonl` | Follow-up prompt v4 | 19 verdict sạch sau code gate |
+| `candidate-v3-adjudication.csv` | Human-confirmed rubric review | 30 row verdict; AI gom evidence, người nộp xác nhận nhãn cuối |
+| `scorecard-v3.md` | Scorecard của run mới | Bản chính thức sau human sign-off ngày 2026-08-21 |
 | `braintrust-link.md` | metadata LangSmith | Direct project link — trace các tutor/judge run |
 
 Số liệu trong mục 5 (Calibration Report) của `deliverables/REPORT.md` phải đối chiếu được với các
