@@ -28,17 +28,23 @@ Track1_Day21_MHV_HoVaTen/
 │       ├── verdicts-groundedness-v1.jsonl
 │       ├── verdicts-followup-v1.jsonl
 │       ├── calibration-v2.txt
+│       ├── calibration-v3.txt
+│       ├── calibration-v4.txt
 │       ├── judge-prompt-groundedness-v2.md
 │       ├── judge-prompt-followup-v2.md
 │       ├── verdicts-groundedness-v2.jsonl
 │       ├── verdicts-followup-v2.jsonl
+│       ├── judge-prompt-groundedness-v3.md
+│       ├── verdicts-groundedness-v3.jsonl
+│       ├── judge-prompt-followup-v4.md
+│       ├── verdicts-followup-v4.jsonl
 │       ├── release-gate-v1.md      # threshold đóng băng trước candidate v2
 │       ├── tutor-prompt-v1.md      # system prompt baseline trước khi đóng spec gap
 │       ├── tutor-prompt-v2.md      # system prompt candidate đã đóng spec gap
 │       ├── results-v2.jsonl        # raw output candidate v2
 │       ├── code-checks-v2.txt      # code gate candidate v2
-│       ├── verdicts-groundedness-candidate-v2.jsonl
-│       ├── verdicts-followup-candidate-v2.jsonl
+│       ├── verdicts-groundedness-candidate-v3.jsonl
+│       ├── verdicts-followup-candidate-v4.jsonl
 │       ├── candidate-v2-adjudication.csv # verdict cuối theo row
 │       ├── scorecard-v2.md         # gate, slice, regression và ba trace đọc tay
 │       ├── judge-prompt-v1.md     # judge prompt vòng 1

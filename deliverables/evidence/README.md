@@ -10,7 +10,7 @@ Cần có đủ:
 | File | Lấy từ đâu | Là gì |
 |---|---|---|
 | `dataset-v1.jsonl` | `dataset.jsonl` (root) | Dataset nhóm chốt — đầu vào mọi lần chạy |
-| `results-v1.jsonl` (v2, v3...) | `results.jsonl` (root) | Output tutor thật: input, output JSON, `tool_calls`, tokens, cost từng câu |
+| `results-v1.jsonl` (v2...) | `results.jsonl` (root) | Output tutor thật: input, output JSON, retrieved sections, tokens, cost; hai snapshot cũ chưa persist exact tool query/steps |
 | `labels.csv` | Chốt từ các file `labels-<tên>.csv` | Nhãn vàng sau khi nhóm thảo luận các case bất đồng |
 | `agreement-v1.txt` | Output `eval/agreement.py` | Agreement tổng, pairwise, phiếu bất đồng và cách chốt nhãn vàng |
 | `code-checks-v1.txt` | Output `eval/code_checks.py` | Kết quả năm rule deterministic trên từng row và tổng kết pass/fail |
@@ -26,19 +26,28 @@ Cần có đủ:
 | `verdicts-groundedness-v2.jsonl` | Output `eval/judge.py` | Verdict Groundedness v2 trên cùng 21 row |
 | `verdicts-followup-v2.jsonl` | Output `eval/judge.py` | Verdict Follow-up v2 trên cùng 21 row |
 | `calibration-v2.txt` | Tổng hợp hai lần chạy judge v2 | So sánh v1→v2, matrix, TPR/TNR và quyết định dừng |
+| `judge-prompt-groundedness-v3.md` | Groundedness v2 + RAG near-miss mới | Prompt vòng kiểm tra ceiling |
+| `verdicts-groundedness-v3.jsonl` | Groundedness v3 trên baseline | V3 bắt RAG nhưng đổi TPR lấy TNR |
+| `calibration-v3.txt` | Tổng hợp thử nghiệm v3 | Chứng minh Groundedness ceiling và bác Follow-up v3 |
+| `judge-prompt-followup-v4.md` | Follow-up prompt đã bỏ precedent RAG sai | Prompt hiện hành sau dataset update |
+| `verdicts-followup-v4.jsonl` | Follow-up v4 trên baseline | 21 verdict dùng để calibrate v4 |
+| `calibration-v4.txt` | Tổng hợp Follow-up v4 | Matrix 21/21 và lý do vẫn giữ LLM assist |
 | `release-gate-v1.md` | Quyết định PM trước candidate v2 | Threshold theo row, trade-off và quy tắc SHIP/HOLD đã đóng băng |
 | `tutor-prompt-v1.md`, `tutor-prompt-v2.md` | Snapshot system prompt trước/sau khi đóng spec gap | Biến sản phẩm được thay đổi trước khi chạy candidate |
 | `results-v2.jsonl` | Candidate chạy sau prompt v2 | 30 raw outputs, retrieval, latency, tokens và cost |
 | `code-checks-v2.txt` | Năm code rules trên candidate v2 | Kết quả từng row và tổng 30/30, 21/30, v.v. |
-| `verdicts-groundedness-candidate-v2.jsonl` | Groundedness judge v2 sau code gate | 21 verdict và rationale trên code-green rows |
-| `verdicts-followup-candidate-v2.jsonl` | Follow-up judge v2 sau code gate | 21 verdict và rationale trên code-green rows |
+| `verdicts-groundedness-candidate-v3.jsonl` | Groundedness v3 sau code gate | 21 signals trước human adjudication |
+| `verdicts-followup-candidate-v4.jsonl` | Follow-up v4 sau code gate | 21 verdict; 9 code-red rows được đọc tay |
 | `candidate-v2-adjudication.csv` | Human review kết hợp code/judge signals | Verdict cuối theo row, override và blocker chính |
 | `scorecard-v2.md` | Tổng hợp Phase 5 | Gate, slice delta, regression, failure concentration và ba trace đọc tay |
-| `judge-prompt-v1.md` (v2...) | `eval/judge_prompt.md` | Prompt judge TỪNG VÒNG — copy trước mỗi lần sửa |
-| `verdicts-v1.jsonl` (v2...) | `verdicts.jsonl` (root) | Output judge từng vòng calibration |
-| `braintrust-link.md` | tự tạo | Link project Braintrust/LangSmith — trace mọi run |
+| `braintrust-link.md` | metadata LangSmith | Direct project link — trace các tutor/judge run |
 
 Số liệu trong mục 5 (Calibration Report) của `deliverables/REPORT.md` phải đối chiếu được với các
 file ở đây (confusion matrix, % agreement in ra từ `eval/judge.py`).
 
 Nhớ: chạy xong một vòng là copy ngay — cuối buổi mới gom là mất dấu các vòng trước.
+
+Lưu ý provenance: `results-v1/v2.jsonl` được tạo trước fix persist `tool_calls` và
+`steps`; chúng vẫn có `retrieved` để code xác nhận đã search nhưng không thể audit lại
+exact query. `eval/run_eval.py` hiện đã lưu hai field này cho mọi run kế tiếp. Không
+tái tạo giả dữ liệu đã mất.

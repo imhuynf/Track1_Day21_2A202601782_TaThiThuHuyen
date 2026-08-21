@@ -21,21 +21,22 @@ Gold labels: labels-groundedness.csv
 
 Confusion matrix (rows = judge, columns = gold):
                  pass  fail  uncertain
-judge pass         12     4          0
-judge fail          1     4          0
+judge pass         12     5          0
+judge fail          1     3          0
 judge uncertain     0     0          0
 
-Agreement: 16/21 = 76%
+Agreement: 15/21 = 71%
 TPR: 12/13 = 92.3%
-TNR: 4/8 = 50.0%
+TNR: 3/8 = 37.5%
 Disagreements:
 - sc-01-lifecycle: judge pass, gold fail
 - sc-02-vibe-offline: judge fail, gold pass
+- sc-09-rag-eval: judge pass, gold fail
 - sc-14-monitoring-drift: judge pass, gold fail
 - sc-15-routing: judge pass, gold fail
 - sc-20-ambiguous-score: judge pass, gold fail
-Usage: 21,657 prompt + 1,261 completion = 22,918 tokens
-Total API latency: 35.98 seconds
+Usage: 21,916 prompt + 1,240 completion = 23,156 tokens
+Total API latency: 35.23 seconds
 
 Follow-up semantic quality v1
 -----------------------------
@@ -45,19 +46,18 @@ Gold labels: labels-followup-quality.csv
 
 Confusion matrix (rows = judge, columns = gold):
                  pass  fail  uncertain
-judge pass         18     3          0
+judge pass         19     2          0
 judge fail          0     0          0
 judge uncertain     0     0          0
 
-Agreement: 18/21 = 86%
-TPR: 18/18 = 100.0%
-TNR: 0/3 = 0.0%
+Agreement: 19/21 = 90%
+TPR: 19/19 = 100.0%
+TNR: 0/2 = 0.0%
 Disagreements:
-- sc-09-rag-eval: judge pass, gold fail
 - sc-20-ambiguous-score: judge pass, gold fail
 - sc-23-cheat: judge pass, gold fail
-Usage: 21,636 prompt + 2,164 completion = 23,800 tokens
-Total API latency: 44.22 seconds
+Usage: 21,895 prompt + 2,166 completion = 24,061 tokens
+Total API latency: 44.23 seconds
 
 Verdict v1
 ----------

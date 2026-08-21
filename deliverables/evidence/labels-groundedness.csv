@@ -7,7 +7,7 @@ sc-05-code-vs-judge,pass,Nội dung phân tuyến code và judge đúng; citatio
 sc-06-calibration,fail,Chưa nêu rõ đối chiếu từng dòng hoặc confusion matrix.
 sc-07-confusion-matrix,pass,Giải thích đúng TPR TNR và false-pass risk.
 sc-08-release-gate,fail,Tự thêm ngưỡng accuracy trên 90 phần trăm cho AI tutor.
-sc-09-rag-eval,fail,Tự thêm tiêu chí answer quality ngoài phần corpus hỗ trợ.
+sc-09-rag-eval,fail,Suy diễn ba lớp RAG và tiêu chí answer quality từ nguồn chỉ hỗ trợ decomposition chung.
 sc-10-tool-calls,pass,Đủ và đúng ba lớp đánh giá tool call.
 sc-11-read-results,fail,Thiếu quyết định dựa trên slice và release gate.
 sc-12-multistep,fail,Chưa giải thích rõ cumulative failure qua các bước.

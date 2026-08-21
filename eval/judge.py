@@ -4,6 +4,7 @@ Cách dùng (chạy từ root repo):
   python3 eval/judge.py                # chấm tất cả các row
   python3 eval/judge.py sc-01 sc-03    # chỉ chấm các scenario_id được chọn
   python3 eval/judge.py --prompt eval/judge_prompt_followup.md \
+      --results deliverables/evidence/results-v1.jsonl \
       --output verdicts-followup.jsonl --labels labels-followup.csv \
       --code-green-only
 Judge dùng prompt trong eval/judge_prompt.md (placeholder {{input}} {{answer}} {{sources}}).
@@ -38,6 +39,7 @@ def parse_args(argv=None):
     parser.add_argument("scenario_ids", nargs="*", help="Chỉ chấm các scenario_id này.")
     parser.add_argument("--prompt", default=PROMPT_PATH, help="File prompt của tiêu chí.")
     parser.add_argument("--output", default="verdicts.jsonl", help="File JSONL nhận verdict.")
+    parser.add_argument("--results", default="results.jsonl", help="File JSONL output tutor cần chấm.")
     parser.add_argument("--labels", default="labels.csv", help="CSV nhãn vàng cùng tiêu chí.")
     parser.add_argument("--criterion", default=None, help="Tên tiêu chí ghi vào mỗi verdict.")
     parser.add_argument(
@@ -129,9 +131,9 @@ def print_confusion(verdicts, labels):
 
 def main(argv=None):
     args = parse_args(argv)
-    results = read_jsonl("results.jsonl")
+    results = read_jsonl(args.results)
     if not results:
-        sys.exit("Không thấy results.jsonl — chạy python3 eval/run_eval.py trước.")
+        sys.exit("Không thấy %s — chạy python3 eval/run_eval.py trước." % args.results)
     if not tutor.get_api_key(JUDGE_MODEL):
         sys.exit("Chưa có API key cho judge model %s — xem .env.example." % JUDGE_MODEL)
     chosen = set(args.scenario_ids)

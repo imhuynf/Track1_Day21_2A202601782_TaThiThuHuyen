@@ -178,10 +178,11 @@ check("judge prompt có slide context", "đang xem slide s22" in p)
 rec2 = {"scenario_id": "q2", "input": "câu hỏi 2", "output": {"answer": "a", "sources": []}}
 p2 = judge_mod.build_judge_prompt(rec2, "{{input}}")
 check("judge prompt không slide thì sạch", "Ngữ cảnh" not in p2)
-args = judge_mod.parse_args(["--prompt", "p.md", "--output", "v.jsonl",
+args = judge_mod.parse_args(["--prompt", "p.md", "--output", "v.jsonl", "--results", "r.jsonl",
                              "--labels", "l.csv", "--code-green-only", "q1"])
 check("judge CLI tách prompt/output/labels",
       args.prompt == "p.md" and args.output == "v.jsonl" and args.labels == "l.csv")
+check("judge CLI nhận results path", args.results == "r.jsonl")
 check("judge CLI giữ scenario id + code gate",
       args.scenario_ids == ["q1"] and args.code_green_only)
 for prompt_name in ("judge_prompt.md", "judge_prompt_followup.md"):
@@ -191,10 +192,15 @@ for prompt_name in ("judge_prompt.md", "judge_prompt_followup.md"):
     check("judge prompt đủ placeholders: " + prompt_name,
           all(x in prompt_text for x in ("{{input}}", "{{answer}}", "{{sources}}")))
 
-from run_eval import estimate_cost_usd
+from run_eval import estimate_cost_usd, parse_args as parse_run_args
 check("cost deepseek", estimate_cost_usd("deepseek/deepseek-v4-flash",
       {"prompt_tokens": 1_000_000, "completion_tokens": 1_000_000}) == 1.76)
 check("cost model lạ -> None", estimate_cost_usd("x/y", {"prompt_tokens": 1}) is None)
+run_args = parse_run_args(["d.jsonl", "--output", "r.jsonl", "--scenario-id", "sc-09",
+                           "--scenario-id", "sc-27", "--system-prompt", "p.md"])
+check("run_eval CLI nhận dataset/output", run_args.dataset == "d.jsonl" and run_args.output == "r.jsonl")
+check("run_eval CLI nhận scenario ids", run_args.scenario_ids == ["sc-09", "sc-27"])
+check("run_eval CLI nhận system prompt", run_args.system_prompt == "p.md")
 
 print("== Tầng 7a: custom code checks ==")
 import code_checks as code_checks_mod

@@ -3,6 +3,12 @@
 Trạng thái: **FROZEN**. Các ngưỡng dưới đây được chốt trước khi chạy candidate
 `results-v2.jsonl`; không sửa theo kết quả nhìn thấy sau đó.
 
+Frozen at: **2026-08-21 21:34:49 +07:00**.
+
+Dataset amendment: sau thời điểm freeze, input `sc-09` và expected scope `sc-27`
+được người dùng cập nhật. Nhóm giữ nguyên toàn bộ threshold, rerun output cho input
+đổi và relabel/adjudicate hai row bị ảnh hưởng; không dùng kết quả mới để nới gate.
+
 ## Sample-size rule
 
 - Full dataset: 30 rows → một row flip = 3,33 điểm phần trăm.

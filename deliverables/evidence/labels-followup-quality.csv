@@ -7,7 +7,7 @@ sc-05-code-vs-judge,pass,Có ví dụ so sánh và tình huống kết hợp hai
 sc-06-calibration,pass,Đào sâu TNR quy trình và điểm dừng calibration.
 sc-07-confusion-matrix,pass,Liên quan trực tiếp đến cải thiện và diễn giải TPR TNR.
 sc-08-release-gate,pass,Các câu đều tiếp tục chủ đề tiêu chí và release gate.
-sc-09-rag-eval,fail,Cả ba câu kéo sang hướng dẫn RAG chi tiết ngoài corpus.
+sc-09-rag-eval,pass,Ba câu liên quan trực tiếp đến retrieval và answer quality; corpus có nội dung về search quality generation và full-path evaluation để đào sâu.
 sc-10-tool-calls,pass,Mỗi câu đào sâu một lớp tool-call evaluation.
 sc-11-read-results,pass,Tập trung vào slices công cụ phân tích và hành động cải thiện.
 sc-12-multistep,pass,Đào sâu ví dụ step-level và failure funnel.

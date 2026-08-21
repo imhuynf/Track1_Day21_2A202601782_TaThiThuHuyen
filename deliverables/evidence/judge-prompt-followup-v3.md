@@ -1,4 +1,4 @@
-# Judge v4 — FOLLOW-UP SEMANTIC QUALITY
+# Judge v3 — FOLLOW-UP SEMANTIC QUALITY
 
 ## Role
 
@@ -40,29 +40,34 @@ AI evaluation có thể hỗ trợ hay không?**
 1. **Gần pass nhưng FAIL — đủ ba câu:** “Bạn có cần giúp không?”, “Bạn hiểu chưa?”,
    “Có phần nào khó không?” đủ số lượng nhưng chủ yếu yes/no/xã giao, không chỉ ra hướng
    áp dụng hay khái niệm cần đào sâu.
-2. **Gần fail nhưng PASS — câu mơ hồ:** Với input “ma trận đó bị ngược?”, follow-up
+2. **Gần pass nhưng FAIL — đúng chủ đề rộng:** Sau khi giới hạn rằng corpus không có
+   framework RAG cụ thể, cả ba câu lại hỏi cách đo, cải thiện retrieval/answer quality
+   chi tiết ngoài phần corpus hỗ trợ.
+3. **Gần fail nhưng PASS — câu mơ hồ:** Với input “ma trận đó bị ngược?”, follow-up
    yêu cầu tên ma trận, slide hoặc số liệu là hữu ích; hỏi làm rõ context chính là bước
    tiếp theo phù hợp, không phải né trả lời.
 
 ## Calibration change v2 — chỉ thêm exact negative near-misses
 
-Hai cụm dưới đây là gold `fail`. Nếu follow-up mới có cùng pattern thì phải trả `fail`,
+Ba cụm dưới đây là gold `fail`. Nếu follow-up mới có cùng pattern thì phải trả `fail`,
 không được cứu chỉ vì chúng có vẻ liên quan đến chủ đề AI evaluation:
 
-1. Input chỉ nói “Eval này ổn chưa?” nhưng follow-up hỏi cách tính pass rate, yếu tố ảnh
+1. Sau câu hỏi RAG mà answer đã nói corpus thiếu framework cụ thể, follow-up lại hỏi
+   “cách đo retrieval quality”, “tiêu chí khác cho answer quality” và “cách cải thiện
+   retrieval quality” → **FAIL vì cả cụm đòi kiến thức chi tiết ngoài corpus**.
+2. Input chỉ nói “Eval này ổn chưa?” nhưng follow-up hỏi cách tính pass rate, yếu tố ảnh
    hưởng và cách cải thiện pass rate → **FAIL vì tiếp tục một referent do tutor tự đoán;
    câu hữu ích phải xin baseline, slices, failures hoặc gate đang dùng**.
-2. Sau khi từ chối làm hộ capstone, follow-up là “Bạn có cần giúp không?”, “Bạn đã hiểu
+3. Sau khi từ chối làm hộ capstone, follow-up là “Bạn có cần giúp không?”, “Bạn đã hiểu
    chưa?” và “Có phần nào khó không?” → **FAIL vì cả cụm chủ yếu yes/no/xã giao; phải
    đưa ra một bước học cụ thể như tự lập rubric, routing hoặc review một phần bài**.
 
-## Calibration change v4 — sửa precedent sau dataset mới
+## Calibration change v3 — một RAG near-miss từ dataset mới
 
-Loại precedent gắn mọi follow-up về retrieval/answer quality với `fail`. Corpus có
-nội dung về search quality, generation capability và full-path outcome nên các câu
-đó có thể `pass` nếu liên quan trực tiếp và không đòi số liệu/framework ngoài nguồn.
-Chỉ chấm `fail` khi chính follow-up giả định một framework không có trong corpus hoặc
-đòi kiến thức cụ thể mà corpus thực sự không hỗ trợ.
+Nếu answer áp decomposition chung thành framework RAG dù corpus không dạy RAG eval cụ
+thể, các follow-up như “cách đánh giá từng lớp RAG”, “cách cải thiện retrieval quality”
+hoặc “phương pháp cải thiện answer quality” vẫn phải **FAIL**. Chúng tiếp tục và mở rộng
+một tiền đề vượt corpus; không được cho pass chỉ vì nghe có vẻ liên quan đến AI eval.
 
 ## Output JSON
 

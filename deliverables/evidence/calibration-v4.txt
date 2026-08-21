@@ -1,0 +1,41 @@
+Follow-up judge v4 — corrected for canonical dataset
+====================================================
+
+Controlled change
+-----------------
+Chỉ sửa prompt Follow-up: bỏ precedent coi mọi câu hỏi về retrieval/answer quality
+là ngoài corpus. Corpus thực tế có nội dung search quality, generation capability và
+full-path outcome. Model, temperature, code gate, labels và 21 rows giữ nguyên.
+
+Baseline calibration
+--------------------
+Prompt: judge-prompt-followup-v4.md
+Verdicts: verdicts-followup-v4.jsonl
+Gold labels: labels-followup-quality.csv
+
+Confusion matrix (rows = judge, columns = gold):
+                 pass  fail  uncertain
+judge pass         19     0          0
+judge fail          0     2          0
+judge uncertain     0     0          0
+
+Agreement: 21/21 = 100%
+TPR: 19/19 = 100.0%
+TNR: 2/2 = 100.0%
+Remaining disagreements: none
+Usage: 27,124 prompt + 2,156 completion = 29,280 tokens
+Total API latency: 46.08 seconds
+
+Candidate v2
+------------
+Verdicts: verdicts-followup-candidate-v4.jsonl
+Judge result: 21 pass / 0 fail / 0 uncertain trên 21 code-green rows.
+Usage: 27,412 prompt + 2,091 completion = 29,503 tokens
+Total API latency: 44.40 seconds
+
+Verdict
+-------
+V4 khôi phục agreement baseline 100% sau thử nghiệm v3 sai precedent. Vẫn giữ lane
+LLM assist: calibration chỉ có hai gold negatives, cùng set đã dùng để sửa prompt và
+chưa có fresh held-out negatives. Candidate verdict cuối vẫn do human adjudication;
+9 code-red rows được đọc tay, tổng Follow-up semantic là 30/30 pass.

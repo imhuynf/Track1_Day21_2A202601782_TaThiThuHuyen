@@ -9,7 +9,7 @@ mỗi câu hỏi sẽ được log thành một trace trong project "ai-evaluati
 calls, tokens, cost trên app.braintrust.dev / smith.langchain.com). Không có key thì
 bỏ qua lặng lẽ. Chi tiết trong README.md mục Tracing.
 """
-import json, os, sys, time
+import argparse, json, os, sys, time
 from pathlib import Path
 
 # tutor.py nằm ở tutor/ (khu vực sản phẩm) — thêm vào sys.path để import được
@@ -37,8 +37,27 @@ def read_jsonl(path):
     with open(path, encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]
 
-def main():
-    dataset_path = sys.argv[1] if len(sys.argv) > 1 else "dataset.jsonl"
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description="Chạy tutor trên evaluation dataset.")
+    parser.add_argument("dataset", nargs="?", default="dataset.jsonl")
+    parser.add_argument("--output", default="results.jsonl")
+    parser.add_argument(
+        "--scenario-id",
+        action="append",
+        dest="scenario_ids",
+        help="Chỉ chạy scenario_id này; có thể truyền nhiều lần.",
+    )
+    parser.add_argument(
+        "--system-prompt",
+        help="Dùng snapshot system prompt từ file thay cho prompt trong tutor.py.",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    dataset_path = args.dataset
     if not os.path.exists(dataset_path):
         sys.exit("Không thấy %s. Tạo bằng: cp data/dataset.example.jsonl dataset.jsonl"
                  % dataset_path)
@@ -49,7 +68,17 @@ def main():
                  "  OPENAI_API_KEY=sk-...     (cho model openai/*)\n"
                  "rồi chạy lại." % tutor.MODEL)
 
+    if args.system_prompt:
+        with open(args.system_prompt, encoding="utf-8") as f:
+            tutor.SYSTEM_PROMPT = f.read().rstrip("\n")
+
     rows = read_jsonl(dataset_path)
+    if args.scenario_ids:
+        chosen = set(args.scenario_ids)
+        rows = [row for row in rows if row.get("scenario_id") in chosen]
+        missing = chosen - {row.get("scenario_id") for row in rows}
+        if missing:
+            sys.exit("Không thấy scenario_id: %s" % ", ".join(sorted(missing)))
     print("Dataset: %d câu | model: %s" % (len(rows), tutor.MODEL))
     results, total_cost, t_start = [], 0.0, time.time()
 
@@ -65,14 +94,19 @@ def main():
             output, meta = tutor.call_tutor(q, slide=slide)
             cost = estimate_cost_usd(tutor.MODEL, meta["usage"])
             rec.update(output=output, raw_content=meta["raw_content"],
-                       retrieved=meta["retrieved"], latency_s=meta["latency_s"],
+                       retrieved=meta["retrieved"],
+                       tool_calls=meta.get("tool_calls", []),
+                       steps=meta.get("steps"),
+                       latency_s=meta["latency_s"],
                        usage=meta["usage"], cost_usd=cost)
             total_cost += cost or 0
             _tracer.log_run(  # log trace: input, output, tool calls, tokens, cost
                 name="tutor-run",
                 inputs={"question": q, "slide": slide, "model": tutor.MODEL},
                 outputs=output,
-                metadata={"steps": meta.get("steps"), "scenario_id": rec["scenario_id"]},
+                metadata={"steps": meta.get("steps"),
+                          "tool_calls": meta.get("tool_calls", []),
+                          "scenario_id": rec["scenario_id"]},
                 metrics={**{k: v for k, v in meta["usage"].items()
                             if isinstance(v, (int, float))},
                          "latency_s": meta["latency_s"],
@@ -86,11 +120,11 @@ def main():
             print("LỖI: %s" % e)
         results.append(rec)
 
-    with open("results.jsonl", "w", encoding="utf-8") as f:
+    with open(args.output, "w", encoding="utf-8") as f:
         for rec in results:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    print("\nXong: ghi %d dòng vào results.jsonl | tổng %.1fs | chi phí ~$%.6f"
-          % (len(results), time.time() - t_start, total_cost))
+    print("\nXong: ghi %d dòng vào %s | tổng %.1fs | chi phí ~$%.6f"
+          % (len(results), args.output, time.time() - t_start, total_cost))
     if _tracer.backend:
         _tracer.flush()
         print("Đã log %d trace lên %s (project '%s')."

@@ -2,15 +2,20 @@ Command:
 python3 eval/agreement.py labels-hai-chau.csv labels-TaThiThuHuyen.csv labels-yen.csv
 
 Case chung: 30
-Đồng thuận hoàn toàn: 28/30 = 93%
-  hai-chau vs TaThiThuHuyen: 28/30 = 93%
+Đồng thuận hoàn toàn: 29/30 = 96%
+  hai-chau vs TaThiThuHuyen: 29/30 = 96%
   hai-chau vs yen: 29/30 = 96%
-  TaThiThuHuyen vs yen: 29/30 = 96%
+  TaThiThuHuyen vs yen: 30/30 = 100%
 
-2 case bất đồng:
-  sc-09-rag-eval -> hai-chau: pass · TaThiThuHuyen: fail · yen: pass
+1 case bất đồng:
   sc-30-source-bypass -> hai-chau: pass · TaThiThuHuyen: fail · yen: fail
 
 Nhãn vàng sau thảo luận:
-  sc-09-rag-eval: fail — phần answer quality thêm tiêu chí không được corpus hỗ trợ.
   sc-30-source-bypass: fail — gọi calibration là công cụ thay vì một quy trình.
+
+Dataset-change note:
+  sc-09-rag-eval đã đổi input. Cả ba reviewer đều chấm fail output baseline mới vì
+  tutor suy diễn ba lớp agent architecture thành framework RAG cụ thể và mở rộng
+  answer quality ngoài phần source hỗ trợ.
+  sc-27-ambiguous-no-referent đổi expected_scope thành in_scope. Cả ba reviewer chấm
+  fail vì output vẫn gắn out_of_scope; việc hỏi làm rõ đúng không loại bỏ blocker scope.

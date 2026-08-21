@@ -1,0 +1,71 @@
+Judge v3 calibration — canonical 30-row dataset
+================================================
+
+Controlled change
+-----------------
+Thử thêm một near-miss từ `sc-09-rag-eval` vào từng prompt. Với Groundedness, pattern
+đúng là không được áp decomposition chung của agent thành framework RAG cụ thể. Với
+Follow-up, đây là một giả thuyết calibration được thử rồi bác bỏ sau khi đọc lại corpus:
+các câu hỏi về search quality và generation vẫn có thể đào sâu bằng corpus. Model,
+temperature, code gate, output schema và 21 evaluated rows giữ nguyên.
+
+Groundedness v3
+---------------
+Prompt: judge-prompt-groundedness-v3.md
+Verdicts: verdicts-groundedness-v3.jsonl
+Gold labels: labels-groundedness.csv
+
+Confusion matrix (rows = judge, columns = gold):
+                 pass  fail  uncertain
+judge pass         11     1          0
+judge fail          2     7          0
+judge uncertain     0     0          0
+
+Agreement: 18/21 = 86%
+TPR: 11/13 = 84.6%
+TNR: 7/8 = 87.5%
+Remaining disagreements:
+- sc-02-vibe-offline: judge fail, gold pass
+- sc-16-judge-ceiling: judge fail, gold pass
+- sc-20-ambiguous-score: judge pass, gold fail
+Usage: 30,862 prompt + 1,258 completion = 32,120 tokens
+Total API latency: 36.06 seconds
+
+Change from v2:
+- Agreement: 86% -> 86% (không nhích)
+- TPR: 92.3% -> 84.6% (-7.7 points)
+- TNR: 75.0% -> 87.5% (+12.5 points)
+- `sc-09` được bắt đúng, nhưng lỗi dịch sang hai false negatives.
+
+Verdict: Groundedness đã chạm trần ở cấu hình prompt-only hiện tại. Hai vòng v2-v3
+không tăng agreement tổng và trade TPR lấy TNR. Hạ lane từ autonomous LLM judge thành
+LLM assist + human adjudication; không tiếp tục ép prompt trên cùng calibration set.
+
+Follow-up semantic quality v3
+-----------------------------
+Prompt: judge-prompt-followup-v3.md
+Verdicts: verdicts-followup-v3.jsonl
+Gold labels: labels-followup-quality.csv
+
+Confusion matrix (rows = judge, columns = gold):
+                 pass  fail  uncertain
+judge pass         18     0          0
+judge fail          1     2          0
+judge uncertain     0     0          0
+
+Agreement: 20/21 = 95%
+TPR: 18/19 = 94.7%
+TNR: 2/2 = 100.0%
+Remaining disagreements:
+- sc-09-rag-eval: judge fail, gold pass
+Usage: 29,665 prompt + 2,169 completion = 31,834 tokens
+Total API latency: 43.16 seconds
+
+Change from v2:
+- Agreement: 100% -> 95% (-5 points)
+- TPR: 100.0% -> 94.7% (-5.3 points)
+- TNR: 100.0% -> 100.0% (unchanged)
+
+Verdict: bác bỏ thay đổi Follow-up v3 và phục hồi prompt v2. V3 biến một gold-pass
+thành false negative nên không được dùng cho candidate gate. Follow-up vẫn ở lane
+LLM assist vì chỉ có hai gold negatives và chưa có fresh held-out set.
